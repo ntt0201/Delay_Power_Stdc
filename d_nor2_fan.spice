@@ -1,0 +1,47 @@
+** sch_path: /home/thanhtung/projects/inverter/xschem/nor2.sch
+**.subckt nor2
+V2 VDD GND 0.8
+.save i(v2)
+Vin in1 GND pulse( 0 .8 10ns .3ns .3ns 20ns 40ns)
+.save i(vin)
+Vin1 in2 GND pulse( 0 .8 1ns .3ns .3ns 40ns 80ns)
+.save i(vin1)
+x2 in1 in2 GND GND VDD VDD out sky130_fd_sc_hd__nor2_1
+x1 out GND GND VDD VDD out1 sky130_fd_sc_hd__inv_1
+**** begin user architecture code
+
+
+.save all
+.inc /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.ref/sky130_fd_sc_hd/spice/sky130_fd_sc_hd.spice
+.control
+ tran 5ps .5us
+ meas tran delay_r1 trig v(in1) val =0.4 rise =2 targ v(out) val=0.4 fall =2
+ meas tran delay_f1 trig v(in1) val =0.4 fall  =4 targ v(out) val=0.4 rise =4
+ meas tran delay_r2 trig v(in2) val =0.4 rise =2 targ v(out) val=0.4 fall =3
+ meas tran delay_f2 trig v(in2) val =0.4 fall  =1 targ v(out) val=0.4 rise =1
+meas tran curr_integ integ v2#branch from=0ns to=80ns
+ let E=curr_integ *0.8
+ let Pavg=E/80n
+ meas tran curr_avg avg V2#branch from=0ns to=80ns
+ let Pavg1=curr_avg*0.8
+let delay_avg_in1=(delay_r1+delay_f1)/2
+  print delay_avg_in1
+  let delay_avg_in2=(delay_r2+delay_f2)/2
+  print delay_avg_in2
+plot in2+2 in1+1 out
+.endc
+
+
+
+.param mc_mm_switch=0
+.param mc_pr_switch=0
+.include /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.tech/ngspice/corners/tt.spice
+.include /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.tech/ngspice/r+c/res_typical__cap_typical.spice
+.include /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.tech/ngspice/r+c/res_typical__cap_typical__lin.spice
+.include /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.tech/ngspice/corners/tt/specialized_cells.spice
+
+**** end user architecture code
+**.ends
+.GLOBAL GND
+.GLOBAL VDD
+.end

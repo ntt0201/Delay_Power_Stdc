@@ -1,0 +1,38 @@
+** sch_path: /home/thanhtung/projects/inverter/xschem/d_xor.sch
+**.subckt d_xor
+x1 in in GND GND VDD VDD out sky130_fd_sc_hd__nor2_1
+V2 VDD GND 0.8
+.save i(v2)
+Vin in GND pulse( 0 .8 10ns 10ns 10ns 40ns 100ns)
+.save i(vin)
+**** begin user architecture code
+
+
+.save all
+.inc /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.ref/sky130_fd_sc_hd/spice/sky130_fd_sc_hd.spice
+.control
+ tran 10ps 1us
+ meas tran delay trig v(in) val =0.4 rise =2 targ v(out) val=0.4 fall =2
+ meas tran curr_integ integ v2#branch from=0ns to=80ns
+ let E=curr_integ *0.8
+ let P=E/80ns
+ meas tran curr_avg avg v2#branch from=0ns to=80ns
+ let P1=curr_avg *0.8
+ echo delay=
+ print delay
+.endc
+
+
+
+.param mc_mm_switch=0
+.param mc_pr_switch=0
+.include /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.tech/ngspice/corners/tt.spice
+.include /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.tech/ngspice/r+c/res_typical__cap_typical.spice
+.include /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.tech/ngspice/r+c/res_typical__cap_typical__lin.spice
+.include /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.tech/ngspice/corners/tt/specialized_cells.spice
+
+**** end user architecture code
+**.ends
+.GLOBAL GND
+.GLOBAL VDD
+.end

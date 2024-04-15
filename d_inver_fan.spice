@@ -1,0 +1,35 @@
+** sch_path: /home/thanhtung/projects/inverter/xschem/d_inver_fan.sch
+**.subckt d_inver_fan
+x1 in GND GND VDD VDD out sky130_fd_sc_hd__inv_1
+V2 VDD GND 0.8
+.save i(v2)
+Vin in GND pulse( 0 0.8 .3ns .3ns 0.3ns 40ns 80ns)
+.save i(vin)
+x2 out GND GND VDD VDD out2 sky130_fd_sc_hd__inv_1
+**** begin user architecture code
+
+.param mc_mm_switch=0
+.param mc_pr_switch=0
+.include /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.tech/ngspice/corners/tt.spice
+.include /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.tech/ngspice/r+c/res_typical__cap_typical.spice
+.include /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.tech/ngspice/r+c/res_typical__cap_typical__lin.spice
+.include /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.tech/ngspice/corners/tt/specialized_cells.spice
+
+
+
+.save all
+.inc /home/thanhtung/eda/unic-cass/share/pdk/sky130A/libs.ref/sky130_fd_sc_hd/spice/sky130_fd_sc_hd.spice
+.control
+ tran 10ps 1us
+ meas tran delay_r trig v(in) val=0.4 rise=3 targ v(out) val=0.4 fall=3
+ meas tran delay_f trig v(in) val=0.4 fall =3 targ v(out) val =0.4 rise=3
+ let delay_avg=(delay_r+delay_f)/2
+ print delay_avg
+ .endc
+
+
+**** end user architecture code
+**.ends
+.GLOBAL GND
+.GLOBAL VDD
+.end
